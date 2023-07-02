@@ -10,7 +10,7 @@ class MainActivity : AppCompatActivity() {
     private var mAdapter: FlowAdapter? = null
     private var mTimer: Timer? = null
     private var currentItem = 0
-    private val mImages = intArrayOf(R.mipmap.item1, R.mipmap.item2, R.mipmap.item3)
+    private val mImages = intArrayOf(R.mipmap.item1, R.mipmap.item2, R.mipmap.item3, R.mipmap.item4,R.mipmap.item5, R.mipmap.item6)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
