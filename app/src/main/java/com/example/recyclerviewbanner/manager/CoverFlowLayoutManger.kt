@@ -19,13 +19,18 @@ import kotlin.math.roundToInt
 class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
 
     companion object {
-        //item 向右移动
-        private const val SCROLL_TO_RIGHT = 1
-        //item 向左移动
-        private const val SCROLL_TO_LEFT = 2
         //最大存储item信息存储数量，超过设置数量，则动态计算来获取
         private const val MAX_RECT_COUNT = 100
     }
+
+    //item 向左移动
+    private var leftItemNum = 2
+
+    //item 向右移动
+    private var rightItemNum = 1
+
+    //是否右单边轮播
+    private var rightOnly = false
 
     //滑动总偏移量
     private var mOffsetAll: Int = 0
@@ -132,10 +137,22 @@ class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
             if ((mRecycle == null || mState == null) && mSelectPosition != 0) {
                 mOffsetAll = calculateOffsetForPosition(mSelectPosition)
             }
-            layoutItems(it, state, SCROLL_TO_LEFT)
+            layoutItems(it, state, leftItemNum)
         }
         mRecycle = recycler
         mState = state
+    }
+
+    /**
+     * 设置item向左/右移动个数
+     * @param leftItemNum
+     * @param rightItemNum
+     * @param rightOnly
+     */
+    fun setItemScrollTo(leftItemNum: Int, rightItemNum: Int, rightOnly: Boolean) {
+        this.leftItemNum = leftItemNum
+        this.rightItemNum = rightItemNum
+        this.rightOnly = rightOnly
     }
 
     /**
@@ -175,7 +192,7 @@ class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
         if (position == 0) position = getCenterPosition()
 
         // 再绘制中间位置前后1个item
-        val min = position - 1
+        val min = if (rightOnly) position else position - 1
         val max = position + 1
         for(i in min .. max) {
             val rect = getFrame(i)
@@ -188,7 +205,7 @@ class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
                 checkTag(scrap.tag)
                 scrap.tag = TAG(i)
                 measureChildWithMargins(scrap, 0, 0)
-                if (scrollDirection == SCROLL_TO_RIGHT) { //item 向右滚动，新增的Item需要添加在最前面
+                if (scrollDirection == rightItemNum) { //item 向右滚动，新增的Item需要添加在最前面
                     addView(scrap, 0)
                 } else { //item 向左滚动，新增的item要添加在最后面
                     addView(scrap)
@@ -205,7 +222,7 @@ class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
         if (mRecycle == null || mState == null) { //如果RecyclerView还没初始化完，先记录下要滚动的位置
             mSelectPosition = position
         } else {
-            layoutItems(mRecycle!!, mState!!, if (position > mSelectPosition) SCROLL_TO_LEFT else SCROLL_TO_RIGHT)
+            layoutItems(mRecycle!!, mState!!, if (position > mSelectPosition) leftItemNum else rightItemNum)
         }
     }
 
@@ -231,7 +248,7 @@ class CoverFlowLayoutManger(cstInterval: Float) : RecyclerView.LayoutManager() {
         if (mAnimation != null && mAnimation?.isRunning == true) {
             mAnimation?.cancel()
         }
-        val direction: Int = if (from < to) SCROLL_TO_LEFT else SCROLL_TO_RIGHT
+        val direction: Int = if (from < to) leftItemNum else rightItemNum
         //该方法会在动画值发生改变时被调用，传递当前的 ValueAnimator 对象作为参数
         mAnimation = ValueAnimator.ofFloat(from.toFloat(), to.toFloat())?.apply {
             this.duration = 500

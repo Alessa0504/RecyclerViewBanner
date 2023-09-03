@@ -45,6 +45,10 @@ class MainActivity : AppCompatActivity() {
         mAdapter = FlowAdapter(this@MainActivity)
         mAdapter?.setData(mImages.toList() as ArrayList<Int>)
         rvFlow?.adapter = mAdapter
+        //2张做单边轮播
+//        rvFlow?.getCoverFlowLayoutManager()?.setItemScrollTo(0, 1, true)
+        //3张轮播
+        rvFlow?.getCoverFlowLayoutManager()?.setItemScrollTo(2, 1, false)
     }
 
     override fun onPause() {
